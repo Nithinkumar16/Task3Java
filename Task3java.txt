@@ -1,0 +1,69 @@
+
+import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class Main {
+    private static boolean timeUp = false;
+    private static int timeLimit = 60; // Time limit in seconds
+
+    public static void main(String[] args) {
+        String testText = "The quick brown fox jumps over the lazy dog.";
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Welcome to the Typing Speed Test!");
+        System.out.println("You will type the following text:");
+        System.out.println(testText);
+        System.out.println("You have 60 seconds. Press Enter to start.");
+        scanner.nextLine();
+
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                timeUp = true;
+                System.out.println("Time's up!");
+            }
+        }, timeLimit * 1000);
+
+        System.out.println("Start typing:");
+        long startTime = System.currentTimeMillis();
+        String userInput = scanner.nextLine();
+        long endTime = System.currentTimeMillis();
+
+        if (timeUp) {
+            System.out.println("You ran out of time.");
+        } else {
+            timer.cancel();
+            calculateResults(testText, userInput, startTime, endTime);
+        }
+
+        scanner.close();
+    }
+
+    private static void calculateResults(String testText, String userInput, long startTime, long endTime) {
+        // Calculate time taken
+        double timeTakenSeconds = (endTime - startTime) / 1000.0;
+
+        // Calculate words per minute
+        int wordCount = userInput.split("\\s+").length;
+        double wordsPerMinute = (wordCount / timeTakenSeconds) * 60;
+
+        // Calculate accuracy
+        int correctChars = 0;
+        int minLength = Math.min(testText.length(), userInput.length());
+
+        for (int i = 0; i < minLength; i++) {
+            if (testText.charAt(i) == userInput.charAt(i)) {
+                correctChars++;
+            }
+        }
+
+        double accuracy = ((double) correctChars / testText.length()) * 100;
+
+        // Display results
+        System.out.printf("\nResults:\n");
+        System.out.printf("Words per minute: %.2f\n", wordsPerMinute);
+        System.out.printf("Accuracy: %.2f%%\n", accuracy);
+    }
+}
